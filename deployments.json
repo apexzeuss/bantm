@@ -1,0 +1,21 @@
+{
+  "network": "X Layer Testnet",
+  "chainId": 1952,
+  "rpc": "https://xlayer-testnet.drpc.org",
+  "explorer": "https://www.oklink.com/xlayer-test",
+  "contracts": {
+    "BantmToken": {
+      "address": "0x6fd04e69165652c1AC79de956F1AA5732e41920c",
+      "name": "bantM",
+      "symbol": "BANTM",
+      "decimals": 6,
+      "deployedAt": "2026-05-26",
+      "supersedes": "0x67a5EB5089De3441529555fD0a2AdaBa4407A295 (DemoUSDT)"
+    },
+    "BantmMarket": {
+      "address": "0x20dB44C21e8c6b6c037bE496ea8066F98cbdE695",
+      "deployedAt": "2026-05-26",
+      "supersedes": "0x6d775E9469f2c24d6330267735405d0CDb5C45c5 (DemoUSDT-paired)"
+    }
+  }
+}
