@@ -3,10 +3,10 @@ import { formatUnits } from 'viem';
 export function formatUsdt(amount: bigint): string {
   const formatted = formatUnits(amount, 6);
   const n = Number(formatted);
-  if (n === 0) return '0';
-  if (n < 1) return n.toFixed(2);
-  if (n < 1000) return n.toFixed(0);
-  if (n < 1_000_000) return `${(n / 1000).toFixed(1)}k`;
+  if (n === 0) return '0.00';
+  if (n < 0.01) return '<0.01';
+  if (n < 1000) return n.toFixed(2);
+  if (n < 1_000_000) return `${(n / 1000).toFixed(2)}k`;
   return `${(n / 1_000_000).toFixed(2)}M`;
 }
 
