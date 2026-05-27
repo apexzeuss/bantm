@@ -30,7 +30,7 @@ Block explorer: [oklink.com/xlayer-test](https://www.oklink.com/xlayer-test)
 
 ## Live now
 
-- 6 markets across Tournament Winner, Golden Boot, Best Young Player, host-nation drama, and prop bets
+- 3 markets across Tournament Winner, Golden Boot, and prop bets
 - Real-time World Cup news ticker (NewsAPI)
 - Public on-chain Fan Score, tribe leaderboard, and top fans by volume
 - Shareable profile card with one-click X tweet
