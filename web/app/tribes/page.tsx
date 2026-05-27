@@ -7,6 +7,7 @@ import { Header } from '@/components/Header';
 import { TEAMS } from '@/lib/teams';
 import { useProfile } from '@/hooks/useProfile';
 import { BANTM_MARKET_ADDRESS, bantmMarketAbi } from '@/lib/contracts';
+import { fireTribeConfetti } from '@/lib/confetti';
 
 export default function TribesPage() {
   const { isConnected } = useAccount();
@@ -27,6 +28,8 @@ export default function TribesPage() {
         args: [BigInt(teamId)],
       });
       setJustPicked(teamId);
+      const picked = TEAMS[teamId];
+      if (picked) fireTribeConfetti(picked.color);
       setTimeout(() => refetch(), 2500);
     } catch (e) {
       setError(e instanceof Error ? e.message.split('\n')[0].slice(0, 120) : 'Failed');

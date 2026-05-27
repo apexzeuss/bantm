@@ -18,7 +18,7 @@ export function MarketCard({ market }: Props) {
   return (
     <Link
       href={`/markets/${id}`}
-      className="block rounded-2xl bg-[#131826] border border-[#1F2538] hover:border-[#00D26A]/40 transition-all p-6 group"
+      className="block rounded-2xl bg-[#131826] border border-[#1F2538] hover:border-[#00D26A]/60 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-12px_rgba(0,210,106,0.35)] transition-all duration-200 p-6 group"
     >
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>

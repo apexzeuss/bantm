@@ -6,6 +6,7 @@ import { TribeCTACard } from '@/components/TribeCTACard';
 import { LiveTicker } from '@/components/LiveTicker';
 import { useMarkets } from '@/hooks/useMarkets';
 import { formatUsdt } from '@/lib/format';
+import { CountUp } from '@/components/CountUp';
 
 export default function HomePage() {
   const { data: markets, isLoading } = useMarkets();
@@ -18,16 +19,16 @@ export default function HomePage() {
       <Header />
 
       <main className="flex-1">
-        <section>
+        <section className="hero-bg">
           <div className="max-w-6xl mx-auto px-6 py-14 sm:py-20">
-            <div className="text-[10px] uppercase tracking-widest text-[#00D26A] font-bold mb-4">
+            <div className="text-[10px] uppercase tracking-widest text-[#00D26A] font-bold mb-4 hero-rise" style={{ animationDelay: '0ms' }}>
               World Cup 2026 · Football tribes, on-chain
             </div>
-            <h1 className="text-4xl sm:text-6xl font-black leading-[0.95] tracking-tight max-w-3xl">
+            <h1 className="text-4xl sm:text-6xl font-black leading-[0.95] tracking-tight max-w-3xl hero-rise" style={{ animationDelay: '120ms' }}>
               Pick your team.<br />
               Stake. <span className="text-[#00D26A]">Beef on-chain.</span>
             </h1>
-            <p className="mt-6 text-[#8B92A8] max-w-xl text-base sm:text-lg">
+            <p className="mt-6 text-[#8B92A8] max-w-xl text-base sm:text-lg hero-rise" style={{ animationDelay: '260ms' }}>
               Football twitter has been a prediction market the whole time. We just put it on-chain.
               Lock your tribe, stake BANTM, settle the score with the winning fans.
             </p>
@@ -38,9 +39,9 @@ export default function HomePage() {
 
         <section className="bg-[#0A0E1A] border-b border-[#1F2538]">
           <div className="max-w-6xl mx-auto px-6 py-4 grid grid-cols-3 gap-4 text-center sm:text-left">
-            <Stat label="Live markets" value={isLoading ? '-' : String(liveCount)} />
-            <Stat label="Total locked" value={isLoading ? '-' : `${formatUsdt(totalPool)} BANTM`} />
-            <Stat label="Tribes" value="32" />
+            <Stat label="Live markets" valueNode={isLoading ? <>-</> : <CountUp value={liveCount} />} />
+            <Stat label="Total locked" valueNode={isLoading ? <>-</> : <><CountUp value={Number(formatUsdt(totalPool).replace(/[^\d.-]/g, '')) || 0} /> BANTM</>} />
+            <Stat label="Tribes" valueNode={<CountUp value={32} />} />
           </div>
         </section>
 
@@ -58,9 +59,13 @@ export default function HomePage() {
             </div>
           ) : markets && markets.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <TribeCTACard />
-              {markets.map((m) => (
-                <MarketCard key={m.id} market={m} />
+              <div className="card-rise" style={{ animationDelay: '0ms' }}>
+                <TribeCTACard />
+              </div>
+              {markets.map((m, i) => (
+                <div key={m.id} className="card-rise" style={{ animationDelay: `${80 + i * 90}ms` }}>
+                  <MarketCard market={m} />
+                </div>
               ))}
             </div>
           ) : (
@@ -73,7 +78,7 @@ export default function HomePage() {
 
       <footer className="border-t border-[#1F2538] mt-12">
         <div className="max-w-6xl mx-auto px-6 py-6 text-xs text-[#8B92A8] flex flex-wrap items-center justify-between gap-3">
-          <span>bantM · Built for #XCupHackathon</span>
+          <span>bantM</span>
           <span className="font-mono">© 2026</span>
         </div>
       </footer>
@@ -81,11 +86,11 @@ export default function HomePage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, valueNode }: { label: string; valueNode: React.ReactNode }) {
   return (
     <div>
       <div className="text-[10px] uppercase tracking-widest text-[#8B92A8]">{label}</div>
-      <div className="font-mono text-lg sm:text-xl font-bold">{value}</div>
+      <div className="font-mono text-lg sm:text-xl font-bold tabular-nums">{valueNode}</div>
     </div>
   );
 }

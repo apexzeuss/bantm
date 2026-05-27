@@ -25,6 +25,37 @@ export type TribeRow = {
   fanCount: number;
 };
 
+/**
+ * Fetch logs in chunks to stay under public-RPC range limits (typically 10k blocks).
+ * X Layer Testnet via drpc tends to be permissive but we keep chunks small to be safe.
+ */
+async function getLogsChunked<TEvent>(
+  client: ReturnType<typeof usePublicClient>,
+  args: { address: `0x${string}`; event: TEvent; fromBlock: bigint; toBlock: bigint },
+  chunkSize = 9_000n,
+) {
+  if (!client) return [];
+  const out: Awaited<ReturnType<NonNullable<typeof client>['getLogs']>> = [];
+  let cursor = args.fromBlock;
+  while (cursor <= args.toBlock) {
+    const end = cursor + chunkSize > args.toBlock ? args.toBlock : cursor + chunkSize;
+    try {
+      const logs = await client.getLogs({
+        address: args.address,
+        // viem types complain about the generic event shape inside this helper.
+        event: args.event as never,
+        fromBlock: cursor,
+        toBlock: end,
+      });
+      out.push(...logs);
+    } catch (err) {
+      console.warn('[leaderboard] getLogs chunk failed', { cursor, end, err });
+    }
+    cursor = end + 1n;
+  }
+  return out;
+}
+
 export function useLeaderboard() {
   const client = usePublicClient();
 
@@ -34,36 +65,50 @@ export function useLeaderboard() {
       if (!client) return { topFans: [], tribes: [] };
 
       const latestBlock = await client.getBlockNumber();
-      const fromBlock = latestBlock > 250_000n ? latestBlock - 250_000n : 0n;
+      // Scan the last ~60k blocks (~33h on X Layer @ ~2s blocks). Plenty for hackathon timeframe.
+      const window = 60_000n;
+      const fromBlock = latestBlock > window ? latestBlock - window : 0n;
 
       const [stakeLogs, tribeLogs] = await Promise.all([
-        client.getLogs({
+        getLogsChunked(client, {
           address: BANTM_MARKET_ADDRESS,
           event: STAKED_EVENT,
           fromBlock,
-          toBlock: 'latest',
+          toBlock: latestBlock,
         }),
-        client.getLogs({
+        getLogsChunked(client, {
           address: BANTM_MARKET_ADDRESS,
           event: TRIBE_SET_EVENT,
           fromBlock,
-          toBlock: 'latest',
+          toBlock: latestBlock,
         }),
       ]);
 
+      console.log('[leaderboard] events fetched', {
+        stakeLogs: stakeLogs.length,
+        tribeLogs: tribeLogs.length,
+        fromBlock,
+        latestBlock,
+      });
+
       const userTribe = new Map<string, number>();
       for (const log of tribeLogs) {
-        if (log.args.user && log.args.teamId !== undefined) {
-          userTribe.set(log.args.user.toLowerCase(), Number(log.args.teamId));
+        const args = (log as { args?: { user?: string; teamId?: bigint } }).args ?? {};
+        if (args.user && args.teamId !== undefined) {
+          userTribe.set(args.user.toLowerCase(), Number(args.teamId));
         }
       }
 
       const userStaked = new Map<string, { amount: bigint; count: number }>();
       for (const log of stakeLogs) {
-        if (log.args.user && log.args.amount !== undefined) {
-          const key = log.args.user.toLowerCase();
+        const args = (log as { args?: { user?: string; amount?: bigint } }).args ?? {};
+        if (args.user && args.amount !== undefined) {
+          const key = args.user.toLowerCase();
           const prev = userStaked.get(key) ?? { amount: 0n, count: 0 };
-          userStaked.set(key, { amount: prev.amount + log.args.amount, count: prev.count + 1 });
+          userStaked.set(key, {
+            amount: prev.amount + args.amount,
+            count: prev.count + 1,
+          });
         }
       }
 

@@ -51,7 +51,7 @@ export function GoatPicker() {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-2xl rounded-3xl bg-[#131826] border border-[#1F2538] p-6 sm:p-8 relative">
+      <div className="w-full max-w-2xl rounded-3xl bg-[#131826] border border-[#1F2538] p-6 sm:p-8 relative modal-pop">
         <button
           onClick={dismissForever}
           className="absolute top-4 right-4 text-[#8B92A8] hover:text-white text-sm"
@@ -78,34 +78,47 @@ export function GoatPicker() {
                 key={g.id}
                 onClick={() => onPick(g)}
                 disabled={!!picked}
-                className={`group relative rounded-2xl border-2 p-5 text-left transition-all overflow-hidden ${
+                className={`group relative rounded-2xl border-2 text-left transition-all overflow-hidden h-72 ${
                   isPicked
                     ? 'scale-[1.03]'
                     : picked
                     ? 'opacity-40 cursor-not-allowed'
-                    : 'hover:-translate-y-0.5'
+                    : 'hover:-translate-y-1 hover:shadow-2xl'
                 }`}
                 style={{
-                  background: `linear-gradient(160deg, ${g.color}, ${g.color}33 70%, #131826)`,
-                  borderColor: isPicked ? g.color : `${g.color}44`,
+                  background: `linear-gradient(160deg, ${g.color}, ${g.color}66 50%, #131826)`,
+                  borderColor: isPicked ? g.color : `${g.color}66`,
                 }}
               >
-                <div className="text-5xl mb-3 leading-none">{g.flag}</div>
+                <img
+                  src={g.image}
+                  alt={g.name}
+                  className="absolute inset-x-0 top-0 w-full h-full object-cover object-top opacity-95"
+                />
                 <div
-                  className="font-black text-2xl leading-tight tracking-tight"
-                  style={{ color: g.textColor }}
-                >
-                  {g.short}
-                </div>
-                <div
-                  className="text-[10px] uppercase tracking-widest font-bold opacity-80 mt-1"
-                  style={{ color: g.textColor }}
-                >
-                  {g.country}
+                  className="absolute inset-0"
+                  style={{ background: `linear-gradient(180deg, transparent 35%, ${g.color}cc 75%, #0A0E1A 100%)` }}
+                />
+                <div className="relative h-full flex flex-col justify-end p-5">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-2xl leading-none">{g.flag}</span>
+                    <div
+                      className="text-[10px] uppercase tracking-widest font-bold opacity-90"
+                      style={{ color: g.textColor }}
+                    >
+                      {g.country}
+                    </div>
+                  </div>
+                  <div
+                    className="font-black text-2xl leading-tight tracking-tight"
+                    style={{ color: g.textColor }}
+                  >
+                    {g.short}
+                  </div>
                 </div>
 
                 {isPicked && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white font-black text-lg rounded-2xl">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-white font-black text-lg rounded-2xl backdrop-blur-sm">
                     Locked in ✓
                   </div>
                 )}

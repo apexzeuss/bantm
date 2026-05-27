@@ -7,8 +7,7 @@ export type Goat = {
   flag: string;
   color: string;
   textColor: string;
-  /** Seeded baseline percentage. Display only — visual energy, not an aggregate. */
-  baselineShare: number;
+  image: string;
 };
 
 export const GOATS: Goat[] = [
@@ -21,7 +20,7 @@ export const GOATS: Goat[] = [
     flag: '🇦🇷',
     color: '#75AADB',
     textColor: '#0A0E1A',
-    baselineShare: 47,
+    image: '/goats/messi.png',
   },
   {
     id: 'ronaldo',
@@ -32,7 +31,7 @@ export const GOATS: Goat[] = [
     flag: '🇵🇹',
     color: '#006600',
     textColor: '#FFFFFF',
-    baselineShare: 38,
+    image: '/goats/ronaldo.png',
   },
   {
     id: 'neymar',
@@ -43,7 +42,7 @@ export const GOATS: Goat[] = [
     flag: '🇧🇷',
     color: '#FEE500',
     textColor: '#0A0E1A',
-    baselineShare: 15,
+    image: '/goats/neymar.png',
   },
 ];
 

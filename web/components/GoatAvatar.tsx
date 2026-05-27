@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { Goat } from '@/lib/goats';
 
 type Props = {
@@ -10,10 +11,35 @@ type Props = {
 };
 
 export function GoatAvatar({ goat, fallbackInitial = '?', size = 40, className = '' }: Props) {
-  if (goat) {
+  const [imgError, setImgError] = useState(false);
+
+  if (goat && !imgError) {
     return (
       <div
-        className={`relative rounded-full flex items-center justify-center font-black overflow-hidden ${className}`}
+        className={`relative rounded-full overflow-hidden ${className}`}
+        style={{
+          width: size,
+          height: size,
+          background: `radial-gradient(circle at 50% 30%, ${goat.color}, ${goat.color}66 60%, ${goat.color}33)`,
+        }}
+        title={`GOAT pick: ${goat.name}`}
+      >
+        <img
+          src={goat.image}
+          alt={goat.name}
+          width={size}
+          height={size}
+          onError={() => setImgError(true)}
+          className="absolute inset-0 w-full h-full object-cover object-top"
+        />
+      </div>
+    );
+  }
+
+  if (goat && imgError) {
+    return (
+      <div
+        className={`rounded-full flex items-center justify-center font-black ${className}`}
         style={{
           width: size,
           height: size,
@@ -22,23 +48,12 @@ export function GoatAvatar({ goat, fallbackInitial = '?', size = 40, className =
           fontSize: size * 0.45,
           lineHeight: 1,
         }}
-        title={`GOAT pick: ${goat.name}`}
       >
-        <span>{goat.initials}</span>
-        <span
-          className="absolute"
-          style={{
-            bottom: -size * 0.05,
-            right: -size * 0.05,
-            fontSize: size * 0.42,
-            lineHeight: 1,
-          }}
-        >
-          {goat.flag}
-        </span>
+        {goat.initials}
       </div>
     );
   }
+
   return (
     <div
       className={`rounded-full bg-[#00D26A]/20 border border-[#00D26A]/40 flex items-center justify-center text-[#00D26A] font-black ${className}`}

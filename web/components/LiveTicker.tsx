@@ -51,7 +51,7 @@ export function LiveTicker() {
   return (
     <div className="border-y border-[#1F2538] bg-[#0A0E1A] overflow-hidden">
       <div className="relative h-10 flex items-center">
-        <span className="absolute left-0 top-0 bottom-0 z-10 flex items-center px-4 bg-[#FF4D6D] text-white text-[10px] font-black uppercase tracking-widest">
+        <span className="absolute left-0 top-0 bottom-0 z-10 flex items-center px-4 bg-[#FF4D6D] text-white text-[10px] font-black uppercase tracking-widest live-pulse">
           <span className="mr-1.5 inline-block w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
           {live ? 'LIVE NEWS' : 'NEWS'}
         </span>

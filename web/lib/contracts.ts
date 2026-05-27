@@ -3,6 +3,16 @@ import { parseAbi } from 'viem';
 export const BANTM_MARKET_ADDRESS = '0x20dB44C21e8c6b6c037bE496ea8066F98cbdE695' as const;
 export const BANTM_TOKEN_ADDRESS = '0x6fd04e69165652c1AC79de956F1AA5732e41920c' as const;
 
+/**
+ * Markets that were seeded with bad text or replaced by a corrected version.
+ * They still exist on-chain but the frontend filters them out so users only see the canonical ones.
+ * Match by exact question text (case-sensitive) — index-proof against re-deploys.
+ */
+export const HIDDEN_MARKET_QUESTIONS: ReadonlySet<string> = new Set([
+  'Will the Argentina reach the knockout rounds?',
+]);
+export const HIDDEN_MARKET_IDS: ReadonlySet<number> = new Set([]);
+
 export const bantmTokenAbi = parseAbi([
   'function name() view returns (string)',
   'function symbol() view returns (string)',
@@ -44,7 +54,3 @@ export const bantmMarketAbi = parseAbi([
   'event Claimed(uint256 indexed marketId, address indexed user, uint256 payout)',
   'event TribeSet(address indexed user, uint256 teamId)',
 ] as const);
-
-// Aliases for backwards compatibility — will remove after the dUSDT → BANTM refactor is verified.
-export const DEMO_USDT_ADDRESS = BANTM_TOKEN_ADDRESS;
-export const demoUsdtAbi = bantmTokenAbi;

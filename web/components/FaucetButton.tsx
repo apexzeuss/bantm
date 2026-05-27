@@ -1,14 +1,14 @@
 'use client';
 
 import { useAccount } from 'wagmi';
-import { useDUSDTBalance, useFaucet } from '@/hooks/useDUSDT';
+import { useBantmBalance, useBantmFaucet } from '@/hooks/useBantmToken';
 import { formatUsdt } from '@/lib/format';
 import { useState } from 'react';
 
 export function FaucetButton() {
   const { isConnected } = useAccount();
-  const { data: balance, refetch } = useDUSDTBalance();
-  const { claim, isPending } = useFaucet();
+  const { data: balance, refetch } = useBantmBalance();
+  const { claim, isPending } = useBantmFaucet();
   const [error, setError] = useState<string | null>(null);
 
   if (!isConnected) return null;

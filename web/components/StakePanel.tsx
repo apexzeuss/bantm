@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useAccount, useWriteContract } from 'wagmi';
-import { parseUnits } from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 import { BANTM_MARKET_ADDRESS, bantmMarketAbi } from '@/lib/contracts';
-import { useDUSDTBalance, useDUSDTAllowance, useApproveMax } from '@/hooks/useDUSDT';
+import { useBantmAllowance, useBantmBalance, useApproveMaxBantm } from '@/hooks/useBantmToken';
 import { formatUsdt } from '@/lib/format';
 
 type Props = {
@@ -22,9 +22,9 @@ export function StakePanel({ marketId, optionIdx, optionLabel, onStaked, onClose
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<'idle' | 'approving' | 'staking' | 'done'>('idle');
 
-  const { data: balance } = useDUSDTBalance();
-  const { data: allowance, refetch: refetchAllowance } = useDUSDTAllowance();
-  const { approve } = useApproveMax();
+  const { data: balance } = useBantmBalance();
+  const { data: allowance, refetch: refetchAllowance } = useBantmAllowance();
+  const { approve } = useApproveMaxBantm();
   const { writeContractAsync } = useWriteContract();
 
   const numericAmount = (() => {
@@ -66,7 +66,7 @@ export function StakePanel({ marketId, optionIdx, optionLabel, onStaked, onClose
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={onClose}>
       <div
-        className="w-full max-w-md rounded-2xl bg-[#131826] border border-[#1F2538] p-6"
+        className="w-full max-w-md rounded-2xl bg-[#131826] border border-[#1F2538] p-6 modal-pop"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-1">
@@ -104,7 +104,7 @@ export function StakePanel({ marketId, optionIdx, optionLabel, onStaked, onClose
             </button>
           ))}
           <button
-            onClick={() => balance && setAmount(formatUsdt(balance).replace(/[k,M]/g, ''))}
+            onClick={() => balance !== undefined && setAmount(formatUnits(balance, 6))}
             className="flex-1 py-2 rounded-lg bg-[#0A0E1A] border border-[#1F2538] text-xs font-mono hover:border-[#00D26A]"
           >
             MAX

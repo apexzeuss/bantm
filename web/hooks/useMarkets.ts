@@ -1,7 +1,12 @@
 'use client';
 
 import { useReadContract, useReadContracts } from 'wagmi';
-import { BANTM_MARKET_ADDRESS, bantmMarketAbi } from '@/lib/contracts';
+import {
+  BANTM_MARKET_ADDRESS,
+  HIDDEN_MARKET_IDS,
+  HIDDEN_MARKET_QUESTIONS,
+  bantmMarketAbi,
+} from '@/lib/contracts';
 
 export type MarketView = {
   id: number;
@@ -80,5 +85,8 @@ export function useMarkets(): { data: MarketView[] | undefined; isLoading: boole
     };
   });
 
-  return { data, isLoading: false };
+  const visible = data.filter(
+    (m) => !HIDDEN_MARKET_IDS.has(m.id) && !HIDDEN_MARKET_QUESTIONS.has(m.question),
+  );
+  return { data: visible, isLoading: false };
 }

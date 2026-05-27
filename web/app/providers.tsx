@@ -25,8 +25,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           showWalletLoginFirst: false,
         },
         embeddedWallets: {
-          createOnLogin: 'users-without-wallets',
-          requireUserPasswordOnCreate: false,
+          ethereum: {
+            createOnLogin: 'users-without-wallets',
+          },
         },
         defaultChain: xLayerTestnet,
         supportedChains: [xLayerTestnet],

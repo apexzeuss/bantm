@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { ShareOnX } from '@/components/ShareOnX';
 import { useProfile } from '@/hooks/useProfile';
-import { useDUSDTBalance } from '@/hooks/useDUSDT';
+import { useBantmBalance } from '@/hooks/useBantmToken';
 import { TEAMS } from '@/lib/teams';
 import { formatUsdt } from '@/lib/format';
 import { fanScore, netPnl } from '@/lib/score';
@@ -17,7 +17,7 @@ function shortAddress(addr: string) {
 export default function ProfilePage() {
   const { address, isConnected } = useAccount();
   const { data: profile, isLoading } = useProfile();
-  const { data: balance } = useDUSDTBalance();
+  const { data: balance } = useBantmBalance();
 
   if (!isConnected) {
     return (

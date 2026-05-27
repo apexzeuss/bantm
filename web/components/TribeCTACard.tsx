@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePrivy } from '@privy-io/react-auth';
 import { TEAMS } from '@/lib/teams';
 import { useProfile } from '@/hooks/useProfile';
 import { formatUsdt } from '@/lib/format';
@@ -9,7 +10,13 @@ import { fanScore } from '@/lib/score';
 const PREVIEW_TEAMS = ['Argentina', 'Brazil', 'France', 'England', 'Germany', 'Spain'];
 
 export function TribeCTACard() {
+  const { authenticated, ready: privyReady } = usePrivy();
   const { data: profile, isLoading } = useProfile();
+
+  if (privyReady && authenticated && (isLoading || !profile)) {
+    return <div className="h-64 rounded-2xl bg-[#131826] border border-[#1F2538] animate-pulse" />;
+  }
+
   const tribe = profile?.tribeSet ? TEAMS[profile.tribe] : null;
 
   if (tribe) {

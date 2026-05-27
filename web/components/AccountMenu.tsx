@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';
 import { formatUnits } from 'viem';
-import { useDUSDTBalance, useFaucet } from '@/hooks/useDUSDT';
+import { useBantmBalance, useBantmFaucet } from '@/hooks/useBantmToken';
 import { useProfile } from '@/hooks/useProfile';
 import { useGoat } from '@/hooks/useGoat';
 import { fanScore } from '@/lib/score';
@@ -43,10 +43,10 @@ export function AccountMenu() {
   const { user, logout } = usePrivy();
   const { address } = useAccount();
   const { data: nativeBalance } = useBalance({ address });
-  const { data: dusdtBalance, refetch: refetchDusdt } = useDUSDTBalance();
+  const { data: bantmBalance, refetch: refetchBantm } = useBantmBalance();
   const { data: profile } = useProfile();
   const { goat } = useGoat();
-  const { claim: claimFaucet, isPending: claiming } = useFaucet();
+  const { claim: claimFaucet, isPending: claiming } = useBantmFaucet();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
@@ -56,7 +56,7 @@ export function AccountMenu() {
     setClaimError(null);
     try {
       await claimFaucet();
-      setTimeout(() => refetchDusdt(), 3000);
+      setTimeout(() => refetchBantm(), 3000);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed';
       setClaimError(msg.includes('cooldown') ? 'Already claimed today' : 'Failed');
@@ -137,7 +137,7 @@ export function AccountMenu() {
             <div className="rounded-lg p-3 bg-[#0A0E1A] border border-[#1F2538]">
               <div className="text-[10px] uppercase tracking-widest text-[#8B92A8] mb-1">BANTM · stake</div>
               <div className="font-mono text-sm font-bold tabular-nums">
-                {dusdtBalance !== undefined ? formatUsdt(dusdtBalance) : '-'}
+                {bantmBalance !== undefined ? formatUsdt(bantmBalance) : '-'}
               </div>
             </div>
           </div>
