@@ -43,7 +43,7 @@ function deriveLoginMethod(user: ReturnType<typeof usePrivy>['user']): string {
 export function AccountMenu() {
   const { user, logout } = usePrivy();
   const { address } = useAccount();
-  const { data: nativeBalance } = useBalance({ address });
+  const { data: nativeBalance, refetch: refetchNative } = useBalance({ address });
   const { data: bantmBalance, refetch: refetchBantm } = useBantmBalance();
   const { data: profile } = useProfile();
   const { goat } = useGoat();
@@ -56,7 +56,12 @@ export function AccountMenu() {
 
   const handleClaimGas = async () => {
     const r = await claimGas();
-    if (r.ok) setTimeout(() => window.location.reload(), 4000);
+    if (r.ok) {
+      // Poll the chain a few times so the new balance lands without forcing a full reload.
+      [3000, 6000, 10000, 15000, 22000].forEach((delay) =>
+        setTimeout(() => refetchNative(), delay),
+      );
+    }
   };
 
   const handleClaimBantm = async () => {

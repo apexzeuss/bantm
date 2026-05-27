@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createWalletClient, http, parseEther, isAddress } from 'viem';
+import {
+  createPublicClient,
+  createWalletClient,
+  http,
+  parseEther,
+  isAddress,
+  formatEther,
+} from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { xLayerTestnet } from '@/lib/wagmi';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const DRIP_AMOUNT = parseEther('0.002'); // 0.002 OKB ≈ hundreds of txs on an L2
-const claimedAddresses = new Set<string>();
+const DRIP_AMOUNT = parseEther('0.002');
+/** If a wallet already has more than this, deny the claim. Self-regulating rate limit. */
+const ALREADY_FUNDED_THRESHOLD = parseEther('0.0008');
 
 const HOT_WALLET_ADDRESS = '0xa04E724f567c7c531CB5A42327859A6327b14FB4' as const;
 
@@ -32,17 +40,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid wallet address' }, { status: 400 });
   }
 
-  const lowerAddress = address.toLowerCase();
-
-  if (lowerAddress === HOT_WALLET_ADDRESS.toLowerCase()) {
+  if (address.toLowerCase() === HOT_WALLET_ADDRESS.toLowerCase()) {
     return NextResponse.json({ error: 'Cannot claim to faucet wallet' }, { status: 400 });
   }
 
-  if (claimedAddresses.has(lowerAddress)) {
-    return NextResponse.json(
-      { error: 'Already claimed once from this address this session. Try later.' },
-      { status: 429 },
-    );
+  const publicClient = createPublicClient({
+    chain: xLayerTestnet,
+    transport: http(),
+  });
+
+  try {
+    const currentBalance = await publicClient.getBalance({ address: address as `0x${string}` });
+
+    if (currentBalance > ALREADY_FUNDED_THRESHOLD) {
+      const have = formatEther(currentBalance);
+      return NextResponse.json(
+        {
+          error: `You already have ${Number(have).toFixed(4)} OKB. Spend it before claiming again.`,
+        },
+        { status: 429 },
+      );
+    }
+  } catch (e) {
+    console.error('[gas-faucet] balance check failed', e);
+    // Fall through and let the user try anyway. RPC hiccups shouldn't block legitimate claims.
   }
 
   try {
@@ -59,8 +80,6 @@ export async function POST(req: NextRequest) {
       to: address as `0x${string}`,
       value: DRIP_AMOUNT,
     });
-
-    claimedAddresses.add(lowerAddress);
 
     return NextResponse.json({
       ok: true,
