@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';
 import { formatUnits } from 'viem';
-import { useBantmBalance, useBantmFaucet } from '@/hooks/useBantmToken';
+import { useBantmBalance, useBantmFaucet, useLastBantmFaucetClaim } from '@/hooks/useBantmToken';
 import { useGasFaucet } from '@/hooks/useGasFaucet';
 import { useProfile } from '@/hooks/useProfile';
 import { useGoat } from '@/hooks/useGoat';
@@ -45,6 +45,7 @@ export function AccountMenu() {
   const { address } = useAccount();
   const { data: nativeBalance, refetch: refetchNative } = useBalance({ address });
   const { data: bantmBalance, refetch: refetchBantm } = useBantmBalance();
+  const { data: lastClaim, refetch: refetchLastClaim } = useLastBantmFaucetClaim();
   const { data: profile } = useProfile();
   const { goat } = useGoat();
   const { claim: claimFaucet, isPending: claiming } = useBantmFaucet();
@@ -68,13 +69,30 @@ export function AccountMenu() {
     setClaimError(null);
     try {
       await claimFaucet();
-      setTimeout(() => refetchBantm(), 3000);
+      [3000, 7000, 12000].forEach((delay) =>
+        setTimeout(() => {
+          refetchBantm();
+          refetchLastClaim();
+        }, delay),
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed';
       setClaimError(msg.includes('cooldown') ? 'Already claimed today' : 'Failed');
       setTimeout(() => setClaimError(null), 4000);
     }
   };
+
+  const COOLDOWN_SECONDS = 24 * 60 * 60;
+  const nowSec = Math.floor(Date.now() / 1000);
+  const lastClaimSec = lastClaim ? Number(lastClaim) : 0;
+  const cooldownEndsAt = lastClaimSec + COOLDOWN_SECONDS;
+  const inCooldown = lastClaimSec > 0 && nowSec < cooldownEndsAt;
+  const remainingSec = inCooldown ? cooldownEndsAt - nowSec : 0;
+  const cooldownLabel = remainingSec > 0
+    ? remainingSec > 3600
+      ? `Next claim in ${Math.ceil(remainingSec / 3600)}h`
+      : `Next claim in ${Math.max(1, Math.ceil(remainingSec / 60))}m`
+    : '';
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -187,13 +205,17 @@ export function AccountMenu() {
           <div className="mt-3 space-y-1">
             <button
               onClick={handleClaimBantm}
-              disabled={claiming}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-[#00D26A]/10 border border-[#00D26A]/30 text-sm hover:bg-[#00D26A]/20 transition-colors disabled:opacity-50"
+              disabled={claiming || inCooldown}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-[#00D26A]/10 border border-[#00D26A]/30 text-sm hover:bg-[#00D26A]/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <span className="font-bold text-[#00D26A]">
-                {claiming ? 'Claiming BANTM…' : claimError ?? '+ Claim 1000 BANTM'}
+                {claiming
+                  ? 'Claiming BANTM…'
+                  : inCooldown
+                  ? cooldownLabel
+                  : claimError ?? '+ Claim 1000 BANTM'}
               </span>
-              <span className="text-[#00D26A] text-xs">free · daily</span>
+              <span className="text-[#00D26A] text-xs">{inCooldown ? 'cooldown' : 'free · daily'}</span>
             </button>
             {lowOkb && (
               <>

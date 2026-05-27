@@ -37,6 +37,18 @@ export function useBantmFaucet() {
   return { claim, isPending };
 }
 
+/** Returns the unix timestamp (seconds) of this address's last faucet claim, or undefined. */
+export function useLastBantmFaucetClaim() {
+  const { address } = useAccount();
+  return useReadContract({
+    address: BANTM_TOKEN_ADDRESS,
+    abi: bantmTokenAbi,
+    functionName: 'lastFaucetClaim',
+    args: address ? [address] : undefined,
+    query: { enabled: !!address, refetchInterval: 30_000 },
+  });
+}
+
 export function useApproveMaxBantm() {
   const { writeContractAsync, isPending } = useWriteContract();
   const approve = (spender: `0x${string}` = BANTM_MARKET_ADDRESS) =>

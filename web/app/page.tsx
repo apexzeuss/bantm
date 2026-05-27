@@ -40,7 +40,7 @@ export default function HomePage() {
         <section className="bg-[#0A0E1A] border-b border-[#1F2538]">
           <div className="max-w-6xl mx-auto px-6 py-4 grid grid-cols-3 gap-4 text-center sm:text-left">
             <Stat label="Live markets" valueNode={isLoading ? <>-</> : <CountUp value={liveCount} />} />
-            <Stat label="Total locked" valueNode={isLoading ? <>-</> : <><CountUp value={Number(formatUsdt(totalPool).replace(/[^\d.-]/g, '')) || 0} /> BANTM</>} />
+            <Stat label="Total staked" valueNode={isLoading ? <>-</> : <><CountUp value={Number(formatUsdt(totalPool).replace(/[^\d.-]/g, '')) || 0} /> BANTM</>} />
             <Stat label="Tribes" valueNode={<CountUp value={32} />} />
           </div>
         </section>

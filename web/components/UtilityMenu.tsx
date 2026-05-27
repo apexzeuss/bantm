@@ -32,6 +32,37 @@ export function UtilityMenu() {
 
       {open && (
         <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-[#131826] border border-[#1F2538] shadow-2xl p-3 z-50">
+          <div className="md:hidden">
+            <Item
+              href="/"
+              onClick={() => setOpen(false)}
+              label="Markets"
+              sublabel="Open prediction markets"
+              icon="🎯"
+            />
+            <Item
+              href="/tribes"
+              onClick={() => setOpen(false)}
+              label="Tribes"
+              sublabel="Pick your team"
+              icon="🏴"
+            />
+            <Item
+              href="/leaderboard"
+              onClick={() => setOpen(false)}
+              label="Leaderboard"
+              sublabel="Top fans + tribe standings"
+              icon="🏆"
+            />
+            <Item
+              href="/profile"
+              onClick={() => setOpen(false)}
+              label="Profile"
+              sublabel="Your Fan Score + history"
+              icon="👤"
+            />
+            <div className="border-t border-[#1F2538] my-2" />
+          </div>
           <Item
             href="/how"
             onClick={() => setOpen(false)}
