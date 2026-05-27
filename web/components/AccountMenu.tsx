@@ -6,6 +6,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';
 import { formatUnits } from 'viem';
 import { useBantmBalance, useBantmFaucet } from '@/hooks/useBantmToken';
+import { useGasFaucet } from '@/hooks/useGasFaucet';
 import { useProfile } from '@/hooks/useProfile';
 import { useGoat } from '@/hooks/useGoat';
 import { fanScore } from '@/lib/score';
@@ -47,10 +48,16 @@ export function AccountMenu() {
   const { data: profile } = useProfile();
   const { goat } = useGoat();
   const { claim: claimFaucet, isPending: claiming } = useBantmFaucet();
+  const { claim: claimGas, claiming: claimingGas, lastResult: gasResult } = useGasFaucet();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+
+  const handleClaimGas = async () => {
+    const r = await claimGas();
+    if (r.ok) setTimeout(() => window.location.reload(), 4000);
+  };
 
   const handleClaimBantm = async () => {
     setClaimError(null);
@@ -184,15 +191,32 @@ export function AccountMenu() {
               <span className="text-[#00D26A] text-xs">free · daily</span>
             </button>
             {lowOkb && (
-              <a
-                href="https://web3.okx.com/xlayer/faucet"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#FF4D6D]/10 border border-[#FF4D6D]/30 text-sm hover:bg-[#FF4D6D]/20 transition-colors"
-              >
-                <span className="font-bold">⛽ Get free OKB</span>
-                <span className="text-[#FF4D6D] text-xs">Need gas ↗</span>
-              </a>
+              <>
+                <button
+                  onClick={handleClaimGas}
+                  disabled={claimingGas}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-[#FF4D6D]/10 border border-[#FF4D6D]/30 text-sm hover:bg-[#FF4D6D]/20 transition-colors disabled:opacity-50"
+                >
+                  <span className="font-bold">
+                    {claimingGas
+                      ? 'Sending gas…'
+                      : gasResult?.ok
+                      ? `+ ${gasResult.amount} OKB sent ✓`
+                      : gasResult && !gasResult.ok
+                      ? gasResult.error.slice(0, 28)
+                      : '⛽ Get free gas (0.002 OKB)'}
+                  </span>
+                  <span className="text-[#FF4D6D] text-xs">free</span>
+                </button>
+                <a
+                  href="https://web3.okx.com/xlayer/faucet"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-[#0A0E1A] text-[11px] text-[#555A6B]"
+                >
+                  <span>Backup: OKX faucet ↗</span>
+                </a>
+              </>
             )}
             <Link
               href="/profile"
